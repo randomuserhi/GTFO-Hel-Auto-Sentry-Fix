@@ -2,7 +2,7 @@
 using BepInEx.Configuration;
 
 namespace HelSentryFix {
-    public static partial class ConfigManager {
+    internal static partial class ConfigManager {
         static ConfigManager() {
             string text = Path.Combine(Paths.ConfigPath, $"{Module.Name}.cfg");
             ConfigFile configFile = new ConfigFile(text, true);

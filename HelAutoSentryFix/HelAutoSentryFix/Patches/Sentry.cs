@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace HelSentryFix.Patches {
     [HarmonyPatch]
-    class PlayerSentryPatches {
+    internal class PlayerSentryPatches {
         private static void MakeShot(SentryGunInstance_Firing_Bullets __instance, bool doDamage, bool targetIsTagged) {
             SentryGunInstance_Firing_Bullets.s_weaponRayData.owner = __instance.m_core.Owner;
             SentryGunInstance_Firing_Bullets.s_weaponRayData.damage = __instance.m_archetypeData.GetSentryDamage(SentryGunInstance_Firing_Bullets.s_weaponRayData.owner, SentryGunInstance_Firing_Bullets.s_weaponRayData.rayHit.distance, targetIsTagged);
