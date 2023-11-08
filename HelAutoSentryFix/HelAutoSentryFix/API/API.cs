@@ -5,7 +5,7 @@ namespace HelSentryFix {
     public static class Module {
         public const string GUID = "randomuserhi.HelAutoSentryFix";
         public const string Name = "HelAutoSentryFix";
-        public const string Version = "0.0.1";
+        public const string Version = "0.0.2";
     }
 }
 
