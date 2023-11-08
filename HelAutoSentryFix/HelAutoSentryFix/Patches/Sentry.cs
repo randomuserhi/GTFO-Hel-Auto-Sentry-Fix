@@ -26,7 +26,7 @@ namespace HelSentryFix.Patches {
                     Debug.Log($"Pierced ${num3}");
                     if (Weapon.CastWeaponRay(__instance.MuzzleAlign, ref temp, origin, LayerManager.MASK_SENTRYGUN_RAY)) {
                         SentryGunInstance_Firing_Bullets.s_weaponRayData = temp;
-                        if (BulletWeapon.BulletHit(SentryGunInstance_Firing_Bullets.s_weaponRayData, doDamage)) {
+                        if (BulletWeapon.BulletHit(SentryGunInstance_Firing_Bullets.s_weaponRayData, doDamage, allowDirectionalBonus: false)) {
                             num5++;
                         }
                         FX_Manager.EffectTargetPosition = SentryGunInstance_Firing_Bullets.s_weaponRayData.rayHit.point;
@@ -42,7 +42,7 @@ namespace HelSentryFix.Patches {
                 }
             } else if (Weapon.CastWeaponRay(__instance.MuzzleAlign, ref temp, LayerManager.MASK_SENTRYGUN_RAY)) {
                 SentryGunInstance_Firing_Bullets.s_weaponRayData = temp;
-                BulletWeapon.BulletHit(SentryGunInstance_Firing_Bullets.s_weaponRayData, doDamage);
+                BulletWeapon.BulletHit(SentryGunInstance_Firing_Bullets.s_weaponRayData, doDamage, allowDirectionalBonus: false);
                 FX_Manager.EffectTargetPosition = SentryGunInstance_Firing_Bullets.s_weaponRayData.rayHit.point;
             } else {
                 FX_Manager.EffectTargetPosition = __instance.MuzzleAlign.position + __instance.MuzzleAlign.forward * 50f;
