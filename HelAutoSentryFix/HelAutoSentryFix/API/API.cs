@@ -1,10 +1,12 @@
 ﻿using BepInEx.Logging;
+using HelSentryFix;
 
-// REMEMBER TO SET THESE => otherwise program just wont work lmao
-public static class Module {
-    public const string GUID = "randomuserhi.HelAutoSentryFix";
-    public const string Name = "HelAutoSentryFix";
-    public const string Version = "0.0.1";
+namespace HelSentryFix {
+    public static class Module {
+        public const string GUID = "randomuserhi.HelAutoSentryFix";
+        public const string Name = "HelAutoSentryFix";
+        public const string Version = "0.0.1";
+    }
 }
 
 namespace API {

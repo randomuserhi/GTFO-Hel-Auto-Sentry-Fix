@@ -3,7 +3,7 @@ using Gear;
 using HarmonyLib;
 using UnityEngine;
 
-namespace HelAutoSentryFix.Patches {
+namespace HelSentryFix.Patches {
     [HarmonyPatch]
     class PlayerSentryPatches {
         private static void MakeShot(SentryGunInstance_Firing_Bullets __instance, bool doDamage, bool targetIsTagged) {
@@ -52,6 +52,9 @@ namespace HelAutoSentryFix.Patches {
         [HarmonyPatch(typeof(SentryGunInstance_Firing_Bullets), nameof(SentryGunInstance_Firing_Bullets.FireBullet))]
         [HarmonyPrefix]
         private static bool SentryGunFiringBullet(SentryGunInstance_Firing_Bullets __instance, bool doDamage, bool targetIsTagged) {
+            SentryFirePatches.sentryFire_Prefix?.Invoke(__instance, doDamage, targetIsTagged);
+            SentryFirePatches.anySentryFire_Prefix?.Invoke(__instance, doDamage, targetIsTagged);
+
             SentryGunInstance_Firing_Bullets.s_weaponRayData = new Weapon.WeaponHitData {
                 randomSpread = __instance.m_archetypeData.HipFireSpread,
                 fireDir = __instance.MuzzleAlign.forward
@@ -66,6 +69,8 @@ namespace HelAutoSentryFix.Patches {
             WeaponShellManager.EjectShell(ShellTypes.Shell_338, 1, 1, __instance.ShellEjectAlign);
             __instance.m_fireBulletTimer = Clock.Time + __instance.m_archetypeData.GetSentryShotDelay(__instance.m_core.Owner, targetIsTagged);
 
+            SentryFirePatches.sentryFire_Postfix?.Invoke(__instance, doDamage, targetIsTagged);
+            SentryFirePatches.anySentryFire_Postfix?.Invoke(__instance, doDamage, targetIsTagged);
             return false;
         }
 
@@ -76,6 +81,10 @@ namespace HelAutoSentryFix.Patches {
             if (!(Clock.Time > __instance.m_fireBulletTimer)) {
                 return false;
             }
+
+            SentryFirePatches.shotgunSentryFire_Prefix?.Invoke(__instance, isMaster, targetIsTagged);
+            SentryFirePatches.anySentryFire_Prefix?.Invoke(__instance, isMaster, targetIsTagged);
+
             Vector3 position = __instance.MuzzleAlign.position;
             __instance.TriggerSingleFireAudio();
             for (int i = 0; i < __instance.m_archetypeData.ShotgunBulletCount; i++) {
@@ -101,6 +110,8 @@ namespace HelAutoSentryFix.Patches {
             __instance.OnBulletFired?.Invoke();
             __instance.m_fireBulletTimer = Clock.Time + __instance.m_archetypeData.GetSentryShotDelay(__instance.m_core.Owner, targetIsTagged);
 
+            SentryFirePatches.shotgunSentryFire_Postfix?.Invoke(__instance, isMaster, targetIsTagged);
+            SentryFirePatches.anySentryFire_Postfix?.Invoke(__instance, isMaster, targetIsTagged);
             return false;
         }
     }
