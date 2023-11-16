@@ -1,4 +1,5 @@
-﻿using FX_EffectSystem;
+﻿using API;
+using FX_EffectSystem;
 using Gear;
 using HarmonyLib;
 using UnityEngine;
@@ -14,8 +15,12 @@ namespace HelSentryFix.Patches {
             SentryGunInstance_Firing_Bullets.s_weaponRayData.damageFalloff = __instance.m_archetypeData.DamageFalloff;
             SentryGunInstance_Firing_Bullets.s_weaponRayData.vfxBulletHit = __instance.m_vfxBulletHit; // NOTE(randomuserhi): In base game, shotgun sentry does not have this line, but for easier code ive included it across all sentries
             Weapon.WeaponHitData temp = SentryGunInstance_Firing_Bullets.s_weaponRayData;
-            if (__instance.m_archetypeData.PiercingBullets) {
-                Debug.Log("Sentry has pierce!");
+            bool disableSniperSentry = __instance.m_archetypeData.persistentID == ConfigManager.SniperSentry_persistentID && ConfigManager.SniperSentry_forceNoPentration;
+            if (disableSniperSentry) {
+                APILogger.Debug($"Sniper sentry [{__instance.m_archetypeData.name}:{__instance.m_archetypeData.persistentID}] is ignored.");
+            }
+            if (__instance.m_archetypeData.PiercingBullets && !disableSniperSentry) {
+                APILogger.Debug($"Sentry has pierce! [{__instance.m_archetypeData.name}:{__instance.m_archetypeData.persistentID}]");
                 int num2 = 5;
                 int num3 = 0;
                 bool flag = false;
@@ -23,7 +28,7 @@ namespace HelSentryFix.Patches {
                 int num5 = 0;
                 Vector3 origin = __instance.MuzzleAlign.position;
                 while (!flag && num3 < num2 && SentryGunInstance_Firing_Bullets.s_weaponRayData.maxRayDist > 0f && num5 < __instance.m_archetypeData.PiercingDamageCountLimit) {
-                    Debug.Log($"Pierced ${num3}");
+                    APILogger.Debug($"Pierced {num3}");
                     if (Weapon.CastWeaponRay(__instance.MuzzleAlign, ref temp, origin, LayerManager.MASK_SENTRYGUN_RAY)) {
                         SentryGunInstance_Firing_Bullets.s_weaponRayData = temp;
                         if (BulletWeapon.BulletHit(SentryGunInstance_Firing_Bullets.s_weaponRayData, doDamage, allowDirectionalBonus: false)) {
@@ -41,10 +46,12 @@ namespace HelSentryFix.Patches {
                     num3++;
                 }
             } else if (Weapon.CastWeaponRay(__instance.MuzzleAlign, ref temp, LayerManager.MASK_SENTRYGUN_RAY)) {
+                APILogger.Debug($"Sentry has no pierce! [{__instance.m_archetypeData.name}:{__instance.m_archetypeData.persistentID}]");
                 SentryGunInstance_Firing_Bullets.s_weaponRayData = temp;
                 BulletWeapon.BulletHit(SentryGunInstance_Firing_Bullets.s_weaponRayData, doDamage, allowDirectionalBonus: false);
                 FX_Manager.EffectTargetPosition = SentryGunInstance_Firing_Bullets.s_weaponRayData.rayHit.point;
             } else {
+                APILogger.Debug($"Sentry missed! [{__instance.m_archetypeData.name}:{__instance.m_archetypeData.persistentID}]");
                 FX_Manager.EffectTargetPosition = __instance.MuzzleAlign.position + __instance.MuzzleAlign.forward * 50f;
             }
         }
@@ -52,6 +59,7 @@ namespace HelSentryFix.Patches {
         [HarmonyPatch(typeof(SentryGunInstance_Firing_Bullets), nameof(SentryGunInstance_Firing_Bullets.FireBullet))]
         [HarmonyPrefix]
         private static bool SentryGunFiringBullet(SentryGunInstance_Firing_Bullets __instance, bool doDamage, bool targetIsTagged) {
+            APILogger.Debug($"Sentry Shoot [{__instance.m_archetypeData.name}:{__instance.m_archetypeData.persistentID}]");
             SentryFirePatches.sentryFire_Prefix?.Invoke(__instance, doDamage, targetIsTagged);
             SentryFirePatches.anySentryFire_Prefix?.Invoke(__instance, doDamage, targetIsTagged);
 
@@ -81,6 +89,8 @@ namespace HelSentryFix.Patches {
             if (!(Clock.Time > __instance.m_fireBulletTimer)) {
                 return false;
             }
+
+            APILogger.Debug($"Shotgun Sentry Shoot [{__instance.m_archetypeData.name}:{__instance.m_archetypeData.persistentID}]");
 
             SentryFirePatches.shotgunSentryFire_Prefix?.Invoke(__instance, isMaster, targetIsTagged);
             SentryFirePatches.anySentryFire_Prefix?.Invoke(__instance, isMaster, targetIsTagged);
